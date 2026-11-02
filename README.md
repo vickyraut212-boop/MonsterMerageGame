@@ -12,10 +12,11 @@ A 2D drop-and-merge physics puzzle game made with Godot 4. Drop monsters into a 
 - `scenes/` - Godot scenes (`main.tscn` is the game screen)
 - `scripts/` - GDScript code
   - `tier_data.gd` - sizes and points for each tier (edit this to tune)
-  - `main.gd` - the main game scene
+  - `main.gd` - the main game scene (click to test-drop monsters for now)
+  - `jar.gd` - jar walls, floor and the danger line (edit sizes in the Inspector)
 
 ## Roadmap
-1. Project setup (this step)
-2. Jar walls and the game-over line
+1. Project setup (done)
+2. Jar walls and the game-over line (done)
 3. Monster scene and the dropper
 4. Merging, score and game over
