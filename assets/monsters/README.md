@@ -14,5 +14,5 @@ Put the 7 monster PNGs here with these exact names:
 
 Tips:
 - Transparent background, monster centred, roughly round, with little empty space around it.
-- Square images work best (for example 512×512). The game scales each sprite to its tier size, so any resolution is fine.
-- Sizes and points per tier live in `scripts/tier_data.gd`.
+- Sprites here are cropped to the monster and resized to 768px max. The game scales each one to its tier size.
+- Sizes follow `docs/size_chart.png`; sizes and points per tier live in `scripts/tier_data.gd`.

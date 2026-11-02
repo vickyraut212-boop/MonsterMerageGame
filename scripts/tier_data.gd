@@ -5,18 +5,28 @@ extends Node
 ## For each tier:
 ##   name     - a label, used only in messages
 ##   texture  - the PNG in assets/monsters
-##   radius   - collision circle size in pixels (the sprite is scaled to fit).
-##              PLACEHOLDER values: to be replaced with the art size chart.
+##   radius   - collision circle size in pixels. The sprite is scaled so its
+##              width matches the circle (see get_sprite_scale).
 ##   points   - score for creating this tier by merging
+##
+## Radii follow the art size chart (docs/size_chart.png). Each monster's width
+## in the chart, relative to the Tier 7 boss:
+##   T1 0.119  T2 0.195  T3 0.289  T4 0.412  T5 0.471  T6 0.658  T7 1.000
+## BOSS_RADIUS sets the overall scale; every other tier keeps its chart ratio.
+## To make everything bigger or smaller, change BOSS_RADIUS only.
+
+const BOSS_RADIUS := 130.0
+
+const SIZE_CHART_RATIO: Array[float] = [0.119, 0.195, 0.289, 0.412, 0.471, 0.658, 1.0]
 
 const TIERS: Array[Dictionary] = [
-	{"name": "Tier 1 - Tiny Dot",  "texture": "res://assets/monsters/tier_1.png", "radius": 20.0,  "points": 1},
-	{"name": "Tier 2",             "texture": "res://assets/monsters/tier_2.png", "radius": 30.0,  "points": 3},
-	{"name": "Tier 3",             "texture": "res://assets/monsters/tier_3.png", "radius": 42.0,  "points": 6},
-	{"name": "Tier 4",             "texture": "res://assets/monsters/tier_4.png", "radius": 56.0,  "points": 10},
-	{"name": "Tier 5",             "texture": "res://assets/monsters/tier_5.png", "radius": 72.0,  "points": 15},
-	{"name": "Tier 6",             "texture": "res://assets/monsters/tier_6.png", "radius": 92.0,  "points": 21},
-	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "radius": 115.0, "points": 28},
+	{"name": "Tier 1 - Tiny Dot",  "texture": "res://assets/monsters/tier_1.png", "points": 1},
+	{"name": "Tier 2",             "texture": "res://assets/monsters/tier_2.png", "points": 3},
+	{"name": "Tier 3",             "texture": "res://assets/monsters/tier_3.png", "points": 6},
+	{"name": "Tier 4",             "texture": "res://assets/monsters/tier_4.png", "points": 10},
+	{"name": "Tier 5",             "texture": "res://assets/monsters/tier_5.png", "points": 15},
+	{"name": "Tier 6",             "texture": "res://assets/monsters/tier_6.png", "points": 21},
+	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28},
 ]
 
 ## The dropper only ever hands out tiers 1 up to this one.
@@ -40,7 +50,17 @@ func get_tier(tier: int) -> Dictionary:
 
 
 func get_radius(tier: int) -> float:
-	return get_tier(tier)["radius"]
+	assert(is_valid(tier), "Tier %d does not exist" % tier)
+	return BOSS_RADIUS * SIZE_CHART_RATIO[tier - 1]
+
+
+## Scale to apply to the tier's Sprite2D so the art is as wide as its collider.
+func get_sprite_scale(tier: int) -> Vector2:
+	var tex := get_texture(tier)
+	if tex == null:
+		return Vector2.ONE
+	var s := (get_radius(tier) * 2.0) / tex.get_width()
+	return Vector2(s, s)
 
 
 func get_points(tier: int) -> int:
