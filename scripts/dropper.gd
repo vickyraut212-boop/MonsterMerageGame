@@ -31,11 +31,13 @@ signal next_changed(tier: int)
 ## Your spaceship PNG. Leave empty to use the drawn UFO.
 @export var ship_texture: Texture2D
 ## How wide the ship appears, in pixels.
-@export var ship_width := 150.0
+@export var ship_width := 190.0
 ## How far above the held monster the ship floats.
-@export var ship_height_above := 78.0
+@export var ship_height_above := 92.0
 ## How much the ship leans into its movement (0 = no lean).
-@export var ship_lean := 0.0012
+@export var ship_lean := 0.0006
+## Largest lean in radians (0.15 is about 9 degrees).
+@export var ship_max_lean := 0.15
 
 @export_subgroup("Colours")
 @export var outline_color := Color(0.12, 0.1, 0.16)
@@ -50,7 +52,8 @@ signal next_changed(tier: int)
 @export var underside_center_color := Color(1.0, 0.84, 0.92)
 @export var ring_color := Color(0.66, 0.88, 0.5)
 @export var light_color := Color(0.62, 0.82, 1.0)
-@export var beam_color := Color(0.9, 1.0, 0.96, 0.28)
+## Beam glow: strong just under the ship, fading out towards the monster.
+@export var beam_color := Color(0.7, 1.0, 0.88, 0.5)
 @export var sparkle_color := Color(1.0, 0.92, 0.3)
 
 var enabled := true
@@ -98,7 +101,7 @@ func _process(delta: float) -> void:
 	# Lean the ship into its movement, like it is flying sideways.
 	var speed := (position.x - _last_x) / maxf(delta, 0.0001)
 	_last_x = position.x
-	_lean = lerpf(_lean, clampf(speed * ship_lean, -0.3, 0.3), 1.0 - exp(-10.0 * delta))
+	_lean = lerpf(_lean, clampf(speed * ship_lean, -ship_max_lean, ship_max_lean), 1.0 - exp(-10.0 * delta))
 
 	if _cooldown_left > 0.0:
 		_cooldown_left -= delta
@@ -173,16 +176,20 @@ func _draw_beam(ship_y: float, radius: float) -> void:
 	var right_top := Vector2(top_half, top_y)
 	var left_bottom := Vector2(-bottom_half, bottom_y)
 	var right_bottom := Vector2(bottom_half, bottom_y)
-	draw_colored_polygon(PackedVector2Array([left_top, right_top, right_bottom, left_bottom]), beam_color)
-	var edge := Color(outline_color, 0.55)
-	draw_line(left_top, left_bottom, edge, 2.5, true)
-	draw_line(right_top, right_bottom, edge, 2.5, true)
+	# Soft glow: full colour at the ship, fading to almost clear at the bottom,
+	# so it reads as light rather than a solid grey shape.
+	var faded := Color(beam_color, beam_color.a * 0.08)
+	draw_polygon(PackedVector2Array([left_top, right_top, right_bottom, left_bottom]),
+			PackedColorArray([beam_color, beam_color, faded, faded]))
+	var edge := Color(beam_color.lightened(0.4), beam_color.a * 0.7)
+	draw_line(left_top, left_bottom, edge, 2.0, true)
+	draw_line(right_top, right_bottom, edge, 2.0, true)
 	# A few short streaks inside the beam.
 	for k in [-0.55, -0.3, 0.3, 0.55]:
 		var t := fmod(_time * 0.8 + absf(k), 1.0)
 		var a := left_top.lerp(right_top, 0.5 + k * 0.5).lerp(left_bottom.lerp(right_bottom, 0.5 + k * 0.5), t * 0.6)
 		var b := left_top.lerp(right_top, 0.5 + k * 0.5).lerp(left_bottom.lerp(right_bottom, 0.5 + k * 0.5), t * 0.6 + 0.15)
-		draw_line(a, b, Color(outline_color, 0.35), 2.0, true)
+		draw_line(a, b, Color(1, 1, 1, 0.45 * (1.0 - t)), 2.0, true)
 
 
 ## The UFO, drawn around (0, 0) = the middle of the saucer.
