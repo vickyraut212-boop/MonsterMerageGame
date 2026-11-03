@@ -1,61 +1,112 @@
 extends Node2D
-## Main game scene: holds the jar and (for now) a simple test drop.
-##
-## TEST DROP: click or tap anywhere to drop a random Tier 1-3 monster at that
-## spot, so you can see the walls, floor and danger line working.
-## Step 3 replaces this with the real dropper.
+## Main game scene. Connects the dropper, the jar and the HUD, and runs the
+## merge rule: when two monsters of the same tier touch, both disappear and one
+## monster of the next tier appears at their exact midpoint.
+
+const SAVE_PATH := "user://best_score.cfg"
 
 @onready var jar: Jar = $Jar
-@onready var game_over_label: Label = $GameOverLabel
+@onready var dropper: Dropper = $Dropper
+@onready var monsters: Node2D = $Monsters
+@onready var hud: Hud = $HUD
 
+var score := 0
+var best := 0
 var _is_over := false
 
 
 func _ready() -> void:
 	randomize()
 	_check_sprites()
+
+	best = _load_best()
+	hud.set_score(0)
+	hud.set_best(best)
+
+	dropper.next_changed.connect(hud.set_next)
+	dropper.dropped.connect(_on_dropped)
 	jar.game_over.connect(_on_game_over)
+	hud.play_again_pressed.connect(_on_play_again)
+
+	dropper.setup(jar)
 
 
-func _unhandled_input(event: InputEvent) -> void:
-	if _is_over:
+func _on_dropped(tier: int, at: Vector2) -> void:
+	_spawn_monster(tier, at)
+
+
+func _spawn_monster(tier: int, at: Vector2) -> Monster:
+	var monster := Monster.new()
+	monster.setup(tier)
+	monster.position = at
+	monster.touched_same_tier.connect(_on_same_tier_touched)
+	monsters.add_child(monster)
+	return monster
+
+
+func _on_same_tier_touched(a: Monster, b: Monster) -> void:
+	if _is_over or a.is_merging or b.is_merging:
 		return
-	# A tap on a phone also arrives as a left mouse click.
-	var click := event as InputEventMouseButton
-	if click and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
-		_drop_test_monster(click.position.x)
+	a.is_merging = true
+	b.is_merging = true
+	# Physics bodies can't be removed in the middle of a physics step,
+	# so the merge itself runs right after it.
+	_merge.call_deferred(a, b)
 
 
-func _drop_test_monster(x: float) -> void:
-	var tier := TierData.random_drop_tier()
-	var radius := TierData.get_radius(tier)
+func _merge(a: Monster, b: Monster) -> void:
+	if not is_instance_valid(a) or not is_instance_valid(b):
+		return
+	var midpoint := (a.global_position + b.global_position) / 2.0
+	var velocity := (a.linear_velocity + b.linear_velocity) / 2.0
+	var new_tier := a.tier + 1
 
-	var monster := RigidBody2D.new()
-	monster.add_to_group("monsters")
+	for old in [a, b]:
+		monsters.remove_child(old)
+		old.queue_free()
 
-	var shape := CircleShape2D.new()
-	shape.radius = radius
-	var collider := CollisionShape2D.new()
-	collider.shape = shape
-	monster.add_child(collider)
+	if new_tier > TierData.tier_count():
+		# Two Tier 7 bosses: both vanish for a big bonus.
+		_add_score(TierData.BOSS_MERGE_BONUS)
+		return
 
-	var sprite := Sprite2D.new()
-	sprite.texture = TierData.get_texture(tier)
-	sprite.scale = TierData.get_sprite_scale(tier)
-	monster.add_child(sprite)
+	_add_score(TierData.get_points(new_tier))
+	var merged := _spawn_monster(new_tier, midpoint)
+	merged.linear_velocity = velocity * 0.5
+	merged.pop_in()
 
-	# Keep the drop inside the jar, just above the rim.
-	var inner := jar.get_inner_rect()
-	monster.position = Vector2(
-			clampf(x, inner.position.x + radius, inner.end.x - radius),
-			inner.position.y - 120.0)
-	add_child(monster)
+
+func _add_score(points: int) -> void:
+	score += points
+	hud.set_score(score)
+	hud.set_best(maxi(best, score))
 
 
 func _on_game_over() -> void:
 	_is_over = true
-	game_over_label.visible = true
-	print("Monster Merge: game over")
+	dropper.stop()
+	var is_new_best := score > best
+	if is_new_best:
+		best = score
+		_save_best(best)
+	hud.show_game_over(score, best, is_new_best)
+
+
+func _on_play_again() -> void:
+	get_tree().reload_current_scene()
+
+
+func _load_best() -> int:
+	var config := ConfigFile.new()
+	if config.load(SAVE_PATH) != OK:
+		return 0
+	return int(config.get_value("score", "best", 0))
+
+
+func _save_best(value: int) -> void:
+	var config := ConfigFile.new()
+	config.set_value("score", "best", value)
+	config.save(SAVE_PATH)
 
 
 func _check_sprites() -> void:
@@ -63,7 +114,5 @@ func _check_sprites() -> void:
 	for tier in range(1, TierData.tier_count() + 1):
 		if TierData.get_texture(tier) == null:
 			missing.append(TierData.get_tier(tier)["texture"])
-	if missing.is_empty():
-		print("Monster Merge: all %d monster sprites found." % TierData.tier_count())
-	else:
+	if not missing.is_empty():
 		push_warning("Monster Merge: missing sprites: %s" % ", ".join(missing))

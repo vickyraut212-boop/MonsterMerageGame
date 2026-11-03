@@ -1,0 +1,131 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(1, 1, 1, 0.12)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_box"]
+bg_color = Color(0.2, 0.16, 0.28, 0.95)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+content_margin_left = 32.0
+content_margin_top = 32.0
+content_margin_right = 32.0
+content_margin_bottom = 32.0
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="ScorePanel" type="Panel" parent="."]
+offset_left = 220.0
+offset_top = 24.0
+offset_right = 500.0
+offset_bottom = 164.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="BestLabel" type="Label" parent="ScorePanel"]
+offset_top = 12.0
+offset_right = 280.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 24
+text = "BEST 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="ScorePanel"]
+offset_top = 46.0
+offset_right = 280.0
+offset_bottom = 128.0
+theme_override_colors/font_outline_color = Color(0.2, 0.1, 0.3, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 64
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextPanel" type="Panel" parent="."]
+offset_left = 544.0
+offset_top = 24.0
+offset_right = 696.0
+offset_bottom = 184.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="NextLabel" type="Label" parent="NextPanel"]
+offset_top = 10.0
+offset_right = 152.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 26
+text = "NEXT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextIcon" type="TextureRect" parent="NextPanel"]
+offset_left = 26.0
+offset_top = 48.0
+offset_right = 126.0
+offset_bottom = 148.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TierStrip" type="HBoxContainer" parent="."]
+offset_left = 40.0
+offset_top = 1212.0
+offset_right = 680.0
+offset_bottom = 1268.0
+mouse_filter = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="GameOver" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Dim" type="ColorRect" parent="GameOver"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="Box" type="VBoxContainer" parent="GameOver"]
+offset_left = 140.0
+offset_top = 440.0
+offset_right = 580.0
+offset_bottom = 840.0
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="Title" type="Label" parent="GameOver/Box"]
+theme_override_colors/font_color = Color(1, 0.45, 0.5, 1)
+theme_override_colors/font_outline_color = Color(0.2, 0.1, 0.3, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 64
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="FinalScore" type="Label" parent="GameOver/Box"]
+theme_override_font_sizes/font_size = 40
+text = "Score: 0"
+horizontal_alignment = 1
+
+[node name="FinalBest" type="Label" parent="GameOver/Box"]
+theme_override_colors/font_color = Color(1, 0.85, 0.4, 1)
+theme_override_font_sizes/font_size = 32
+text = "Best: 0"
+horizontal_alignment = 1
+
+[node name="PlayAgain" type="Button" parent="GameOver/Box"]
+custom_minimum_size = Vector2(0, 88)
+theme_override_font_sizes/font_size = 36
+theme_override_styles/normal = SubResource("StyleBoxFlat_box")
+text = "Play again"
