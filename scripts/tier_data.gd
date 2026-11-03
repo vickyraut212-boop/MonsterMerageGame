@@ -29,7 +29,8 @@ const TIERS: Array[Dictionary] = [
 	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28},
 ]
 
-## The dropper only ever hands out tiers 1 up to this one.
+## Highest tier the dropper can ever hand out. The first drop is always
+## Tier 1 and higher tiers unlock as the player merges (see dropper.gd).
 const MAX_DROP_TIER := 3
 
 ## Bonus for merging two Tier 7 bosses (they vanish).
@@ -74,7 +75,3 @@ func get_texture(tier: int) -> Texture2D:
 		return load(path)
 	return null
 
-
-## A random tier the dropper can hand out (1 to MAX_DROP_TIER).
-func random_drop_tier() -> int:
-	return randi_range(1, MAX_DROP_TIER)
