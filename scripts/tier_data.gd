@@ -32,8 +32,8 @@ const TIERS: Array[Dictionary] = [
 	{"name": "Tier 3",             "texture": "res://assets/monsters/tier_3.png", "points": 6,  "bonus": 0},
 	{"name": "Tier 4",             "texture": "res://assets/monsters/tier_4.png", "points": 10, "bonus": 10},
 	{"name": "Tier 5",             "texture": "res://assets/monsters/tier_5.png", "points": 15, "bonus": 20},
-	{"name": "Tier 6",             "texture": "res://assets/monsters/tier_6.png", "points": 21, "bonus": 50},
-	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28, "bonus": 100},
+	{"name": "Tier 6",             "texture": "res://assets/monsters/tier_6.png", "points": 21, "bonus": 30},
+	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28, "bonus": 50},
 ]
 
 ## Drops: the first drop is always Tier 1, then random Tier 1 to this tier.
@@ -41,7 +41,7 @@ const TIERS: Array[Dictionary] = [
 const MAX_DROP_TIER := 3
 
 ## Bonus for merging two Tier 7 bosses (they vanish).
-const BOSS_MERGE_BONUS := 250
+const BOSS_MERGE_BONUS := 100
 
 
 func tier_count() -> int:
