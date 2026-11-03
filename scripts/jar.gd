@@ -9,9 +9,9 @@ extends Node2D
 signal game_over
 
 ## Inside of the jar (the space monsters can occupy).
-@export var inner_left := 60.0
+@export var inner_left := 100.0
 @export var inner_top := 300.0
-@export var inner_width := 600.0
+@export var inner_width := 520.0
 @export var inner_height := 880.0
 
 ## How thick the walls look and collide.

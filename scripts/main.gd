@@ -68,9 +68,13 @@ func _merge(a: Monster, b: Monster) -> void:
 	if new_tier > TierData.tier_count():
 		# Two Tier 7 bosses: both vanish for a big bonus.
 		_add_score(TierData.BOSS_MERGE_BONUS)
+		_show_points_popup(midpoint, TierData.BOSS_MERGE_BONUS, true)
 		return
 
-	_add_score(TierData.get_points(new_tier))
+	var points := TierData.get_points(new_tier)
+	var bonus := TierData.get_bonus(new_tier)
+	_add_score(points + bonus)
+	_show_points_popup(midpoint, points + bonus, bonus > 0)
 	var merged := _spawn_monster(new_tier, midpoint)
 	merged.linear_velocity = velocity * 0.5
 	merged.pop_in()
@@ -80,6 +84,29 @@ func _add_score(points: int) -> void:
 	score += points
 	hud.set_score(score)
 	hud.set_best(maxi(best, score))
+
+
+## Floating "+points" text that rises and fades where a merge happened.
+## Gold and bigger when the merge earned a bonus.
+func _show_points_popup(at: Vector2, points: int, is_bonus: bool) -> void:
+	var label := Label.new()
+	label.text = ("+%d BONUS!" if is_bonus else "+%d") % points
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 44 if is_bonus else 30)
+	label.add_theme_color_override("font_color",
+			Color(1, 0.85, 0.4) if is_bonus else Color.WHITE)
+	label.add_theme_color_override("font_outline_color", Color(0.2, 0.1, 0.3))
+	label.add_theme_constant_override("outline_size", 10)
+	label.size = Vector2(320, 60)
+	label.position = at - label.size / 2.0
+	label.z_index = 10
+	add_child(label)
+
+	var tween := label.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(label, "position:y", label.position.y - 80.0, 0.9)
+	tween.tween_property(label, "modulate:a", 0.0, 0.5).set_delay(0.4)
+	tween.chain().tween_callback(label.queue_free)
 
 
 func _on_game_over() -> void:
