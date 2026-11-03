@@ -19,8 +19,9 @@ extends Node2D
 signal dropped(tier: int, at: Vector2)
 signal next_changed(tier: int)
 
-## Height (screen y) where the waiting monster hangs.
-@export var hold_y := 262.0
+## How far above the jar's rim the waiting monster hangs.
+## (The height follows the jar, so moving the jar moves the ship too.)
+@export var hold_above_rim := 55.0
 ## Seconds between drops.
 @export var cooldown := 0.6
 ## How quickly the monster catches up with the pointer (higher = snappier).
@@ -75,7 +76,7 @@ func _ready() -> void:
 func setup(jar: Jar) -> void:
 	_jar = jar
 	_target_x = jar.get_inner_rect().get_center().x
-	position = Vector2(_target_x, hold_y)
+	position = Vector2(_target_x, jar.inner_top - hold_above_rim)
 	current_tier = 1  # the first drop of every game is Tier 1
 	next_tier = _pick_tier()
 	_refresh_held()
