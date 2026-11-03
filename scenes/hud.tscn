@@ -78,13 +78,11 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="TierStrip" type="HBoxContainer" parent="."]
-offset_left = 40.0
-offset_top = 1206.0
-offset_right = 680.0
-offset_bottom = 1276.0
+[node name="TierTrack" type="HBoxContainer" parent="."]
+offset_top = 1100.0
+offset_right = 720.0
+offset_bottom = 1230.0
 mouse_filter = 2
-theme_override_constants/separation = 14
 alignment = 1
 
 [node name="GameOver" type="Control" parent="."]
