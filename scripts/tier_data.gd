@@ -20,6 +20,12 @@ const BOSS_RADIUS := 130.0
 
 const SIZE_CHART_RATIO: Array[float] = [0.119, 0.195, 0.289, 0.412, 0.471, 0.658, 1.0]
 
+## Readability boost for the smallest tiers. At their pure chart size Tier 1
+## (about 15 px) and Tier 2 (about 25 px) are too small to read their faces,
+## and they are the monsters players see most. 1.0 = exact chart size.
+## Result: T1 22, T2 29, T3 38, T4 54, T5 61, T6 86, T7 130 px radius.
+const READABILITY_BOOST: Array[float] = [1.45, 1.15, 1.0, 1.0, 1.0, 1.0, 1.0]
+
 const TIERS: Array[Dictionary] = [
 	{"name": "Tier 1 - Tiny Dot",  "texture": "res://assets/monsters/tier_1.png", "points": 1,  "bonus": 0},
 	{"name": "Tier 2",             "texture": "res://assets/monsters/tier_2.png", "points": 3,  "bonus": 0},
@@ -53,7 +59,7 @@ func get_tier(tier: int) -> Dictionary:
 
 func get_radius(tier: int) -> float:
 	assert(is_valid(tier), "Tier %d does not exist" % tier)
-	return BOSS_RADIUS * SIZE_CHART_RATIO[tier - 1]
+	return BOSS_RADIUS * SIZE_CHART_RATIO[tier - 1] * READABILITY_BOOST[tier - 1]
 
 
 ## Scale to apply to the tier's Sprite2D so the art is as wide as its collider.
