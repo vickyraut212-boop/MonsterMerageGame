@@ -68,13 +68,13 @@ func _merge(a: Monster, b: Monster) -> void:
 	if new_tier > TierData.tier_count():
 		# Two Tier 7 bosses: both vanish for a big bonus.
 		_add_score(TierData.BOSS_MERGE_BONUS)
-		_show_points_popup(midpoint, TierData.BOSS_MERGE_BONUS, true)
+		_show_points_popup(midpoint, 0, TierData.BOSS_MERGE_BONUS)
 		return
 
 	var points := TierData.get_points(new_tier)
 	var bonus := TierData.get_bonus(new_tier)
 	_add_score(points + bonus)
-	_show_points_popup(midpoint, points + bonus, bonus > 0)
+	_show_points_popup(midpoint, points, bonus)
 	var merged := _spawn_monster(new_tier, midpoint)
 	merged.linear_velocity = velocity * 0.5
 	merged.pop_in()
@@ -86,27 +86,45 @@ func _add_score(points: int) -> void:
 	hud.set_best(maxi(best, score))
 
 
-## Floating "+points" text that rises and fades where a merge happened.
-## Gold and bigger when the merge earned a bonus.
-func _show_points_popup(at: Vector2, points: int, is_bonus: bool) -> void:
+## Floating score text where a merge happened: the normal points in small
+## white ("+21"), and any bonus on its own line in bigger gold ("BONUS +30"),
+## so players can tell the two apart. Rises and fades in under a second.
+func _show_points_popup(at: Vector2, points: int, bonus: int) -> void:
+	var popup := Node2D.new()
+	popup.position = at
+	popup.z_index = 10
+	add_child(popup)
+
+	if points > 0:
+		popup.add_child(_popup_label("+%d" % points, 26, Color.WHITE, Vector2(0, -16)))
+	if bonus > 0:
+		var bonus_label := _popup_label("BONUS +%d" % bonus, 36, Color(1, 0.82, 0.3), Vector2(0, 20))
+		popup.add_child(bonus_label)
+		# Little pop so the bonus catches the eye.
+		bonus_label.scale = Vector2(0.6, 0.6)
+		bonus_label.create_tween().tween_property(bonus_label, "scale", Vector2.ONE, 0.2) \
+				.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+	var tween := popup.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(popup, "position:y", at.y - 70.0, 0.8)
+	tween.tween_property(popup, "modulate:a", 0.0, 0.35).set_delay(0.45)
+	tween.chain().tween_callback(popup.queue_free)
+
+
+func _popup_label(text: String, font_size: int, color: Color, offset: Vector2) -> Label:
 	var label := Label.new()
-	label.text = ("+%d BONUS!" if is_bonus else "+%d") % points
+	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 44 if is_bonus else 30)
-	label.add_theme_color_override("font_color",
-			Color(1, 0.85, 0.4) if is_bonus else Color.WHITE)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0.2, 0.1, 0.3))
 	label.add_theme_constant_override("outline_size", 10)
-	label.size = Vector2(320, 60)
-	label.position = at - label.size / 2.0
-	label.z_index = 10
-	add_child(label)
-
-	var tween := label.create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(label, "position:y", label.position.y - 80.0, 0.9)
-	tween.tween_property(label, "modulate:a", 0.0, 0.5).set_delay(0.4)
-	tween.chain().tween_callback(label.queue_free)
+	label.size = Vector2(260, font_size + 16)
+	label.position = offset - label.size / 2.0
+	label.pivot_offset = label.size / 2.0
+	return label
 
 
 func _on_game_over() -> void:
