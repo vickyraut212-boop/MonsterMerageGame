@@ -9,10 +9,13 @@ extends Node2D
 signal game_over
 
 ## Inside of the jar (the space monsters can occupy).
-@export var inner_left := 100.0
-@export var inner_top := 300.0
-@export var inner_width := 520.0
-@export var inner_height := 880.0
+## Kept fairly narrow and short so the pile climbs towards the danger line
+## within a minute or two of play; a tall jar never gets dangerous.
+## inner_left centres it: (720 - inner_width) / 2.
+@export var inner_left := 130.0
+@export var inner_top := 340.0
+@export var inner_width := 460.0
+@export var inner_height := 720.0
 
 ## How thick the walls look and collide.
 @export var wall_thickness := 24.0
