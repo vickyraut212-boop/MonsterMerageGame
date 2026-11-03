@@ -29,8 +29,8 @@ const TIERS: Array[Dictionary] = [
 	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28},
 ]
 
-## Highest tier the dropper can ever hand out. The first drop is always
-## Tier 1 and higher tiers unlock as the player merges (see dropper.gd).
+## Drops: the first drop is always Tier 1, then random Tier 1 to this tier.
+## Tiers above it (4 to 7) are only made by merging. See dropper.gd.
 const MAX_DROP_TIER := 3
 
 ## Bonus for merging two Tier 7 bosses (they vanish).

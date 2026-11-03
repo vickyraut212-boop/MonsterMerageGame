@@ -5,10 +5,9 @@ extends Node2D
 ## when the mouse button or finger is released.
 ##
 ## DROP ORDER
-## The very first drop is always Tier 1. After that, a tier can only drop once
-## the player has already made it by merging, and never above
-## TierData.MAX_DROP_TIER (Tier 3). So the game starts with only Tier 1s, Tier 2
-## joins the drops after the first Tier 2 merge, then Tier 3.
+## The very first drop of the game is always Tier 1. After that, every drop is
+## a random pick between Tier 1 and TierData.MAX_DROP_TIER (Tier 3).
+## Tiers 4 to 7 never drop; they are only made by merging.
 ## The rule lives in _pick_tier() below.
 
 signal dropped(tier: int, at: Vector2)
@@ -28,7 +27,6 @@ var next_tier := 1
 
 var _jar: Jar
 var _held: Sprite2D
-var _highest_unlocked := 1
 var _cooldown_left := 0.0
 var _target_x := 360.0
 
@@ -43,19 +41,15 @@ func setup(jar: Jar) -> void:
 	_jar = jar
 	_target_x = jar.get_inner_rect().get_center().x
 	position = Vector2(_target_x, hold_y)
-	current_tier = 1
+	current_tier = 1  # the first drop of every game is Tier 1
 	next_tier = _pick_tier()
 	_refresh_held()
 	next_changed.emit(next_tier)
 
 
-## Called when the player makes a new tier by merging.
-func unlock_tier(tier: int) -> void:
-	_highest_unlocked = clampi(maxi(_highest_unlocked, tier), 1, TierData.MAX_DROP_TIER)
-
-
+## Every drop after the first: random Tier 1, 2 or 3.
 func _pick_tier() -> int:
-	return randi_range(1, _highest_unlocked)
+	return randi_range(1, TierData.MAX_DROP_TIER)
 
 
 func _process(delta: float) -> void:

@@ -71,7 +71,6 @@ func _merge(a: Monster, b: Monster) -> void:
 		return
 
 	_add_score(TierData.get_points(new_tier))
-	dropper.unlock_tier(new_tier)
 	var merged := _spawn_monster(new_tier, midpoint)
 	merged.linear_velocity = velocity * 0.5
 	merged.pop_in()
