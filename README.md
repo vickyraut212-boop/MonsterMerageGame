@@ -17,7 +17,7 @@ Move the mouse (or drag a finger) to aim the monster at the top, release to drop
 - `scripts/`
   - `tier_data.gd` - sizes and points for each tier (edit this to tune)
   - `jar.gd` - jar walls, floor and the danger line
-  - `dropper.gd` - aiming, dropping and the drop order rule
+  - `dropper.gd` - the alien spaceship: aiming, dropping and the drop order rule (set your own ship PNG on the Dropper node's "Ship Texture")
   - `monster.gd` - one monster's physics body
   - `main.gd` - merging, score and game over
   - `hud.gd` - on-screen UI

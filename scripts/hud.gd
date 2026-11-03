@@ -43,12 +43,21 @@ func show_game_over(score: int, best: int, is_new_best: bool) -> void:
 	_game_over.visible = true
 
 
-## A row of all 7 monsters, smallest to biggest, so players see the merge chain.
+## Size of the Tier 7 icon in the strip; the others shrink with the size chart.
+const STRIP_BOSS_SIZE := 70.0
+## Smallest any icon may get, so Tier 1 is still visible.
+const STRIP_MIN_SIZE := 12.0
+
+
+## A row of all 7 monsters, smallest to biggest, sized like the size chart and
+## standing on the same baseline, so players see the merge chain.
 func _build_tier_strip() -> void:
 	for tier in range(1, TierData.tier_count() + 1):
 		var icon := TextureRect.new()
 		icon.texture = TierData.get_texture(tier)
-		icon.custom_minimum_size = Vector2(56, 56)
+		var side := maxf(STRIP_MIN_SIZE, STRIP_BOSS_SIZE * TierData.get_size_ratio(tier))
+		icon.custom_minimum_size = Vector2(side, side)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_END
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE

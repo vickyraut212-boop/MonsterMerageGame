@@ -8,6 +8,7 @@ extends Node
 ##   radius   - collision circle size in pixels. The sprite is scaled so its
 ##              width matches the circle (see get_sprite_scale).
 ##   points   - score for creating this tier by merging
+##   bonus    - extra points on top, for the big tiers (4 to 7)
 ##
 ## Radii follow the art size chart (docs/size_chart.png). Each monster's width
 ## in the chart, relative to the Tier 7 boss:
@@ -20,13 +21,13 @@ const BOSS_RADIUS := 130.0
 const SIZE_CHART_RATIO: Array[float] = [0.119, 0.195, 0.289, 0.412, 0.471, 0.658, 1.0]
 
 const TIERS: Array[Dictionary] = [
-	{"name": "Tier 1 - Tiny Dot",  "texture": "res://assets/monsters/tier_1.png", "points": 1},
-	{"name": "Tier 2",             "texture": "res://assets/monsters/tier_2.png", "points": 3},
-	{"name": "Tier 3",             "texture": "res://assets/monsters/tier_3.png", "points": 6},
-	{"name": "Tier 4",             "texture": "res://assets/monsters/tier_4.png", "points": 10},
-	{"name": "Tier 5",             "texture": "res://assets/monsters/tier_5.png", "points": 15},
-	{"name": "Tier 6",             "texture": "res://assets/monsters/tier_6.png", "points": 21},
-	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28},
+	{"name": "Tier 1 - Tiny Dot",  "texture": "res://assets/monsters/tier_1.png", "points": 1,  "bonus": 0},
+	{"name": "Tier 2",             "texture": "res://assets/monsters/tier_2.png", "points": 3,  "bonus": 0},
+	{"name": "Tier 3",             "texture": "res://assets/monsters/tier_3.png", "points": 6,  "bonus": 0},
+	{"name": "Tier 4",             "texture": "res://assets/monsters/tier_4.png", "points": 10, "bonus": 10},
+	{"name": "Tier 5",             "texture": "res://assets/monsters/tier_5.png", "points": 15, "bonus": 20},
+	{"name": "Tier 6",             "texture": "res://assets/monsters/tier_6.png", "points": 21, "bonus": 50},
+	{"name": "Tier 7 - Big Boss",  "texture": "res://assets/monsters/tier_7.png", "points": 28, "bonus": 100},
 ]
 
 ## Drops: the first drop is always Tier 1, then random Tier 1 to this tier.
@@ -34,7 +35,7 @@ const TIERS: Array[Dictionary] = [
 const MAX_DROP_TIER := 3
 
 ## Bonus for merging two Tier 7 bosses (they vanish).
-const BOSS_MERGE_BONUS := 100
+const BOSS_MERGE_BONUS := 250
 
 
 func tier_count() -> int:
@@ -66,6 +67,15 @@ func get_sprite_scale(tier: int) -> Vector2:
 
 func get_points(tier: int) -> int:
 	return get_tier(tier)["points"]
+
+
+func get_bonus(tier: int) -> int:
+	return get_tier(tier)["bonus"]
+
+
+## Tier size compared to the Tier 7 boss (0.119 for Tier 1 ... 1.0 for Tier 7).
+func get_size_ratio(tier: int) -> float:
+	return get_radius(tier) / get_radius(tier_count())
 
 
 ## Returns the tier's sprite, or null if the PNG is missing.
