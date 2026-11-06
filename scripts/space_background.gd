@@ -11,18 +11,22 @@ extends Node2D
 @export var background_texture: Texture2D = preload("res://assets/ui/background.jpg")
 
 @export_group("Planets and stars")
-## Pictures to scatter. One is picked at random for each piece.
-@export var planet_textures: Array[Texture2D] = [preload("res://assets/ui/planet.png")]
+## Pictures to scatter, used in random order without repeats until all have
+## been placed.
+@export var planet_textures: Array[Texture2D] = [
+	preload("res://assets/ui/planet_1.png"),
+	preload("res://assets/ui/planet_2.png"),
+	preload("res://assets/ui/planet_3.png"),
+]
 @export var star_textures: Array[Texture2D] = [
 	preload("res://assets/ui/star_1.png"),
 	preload("res://assets/ui/star_2.png"),
-	preload("res://assets/ui/star_3.png"),
 ]
 @export var planet_count := 2
 @export var star_count := 9
 ## Size range, in screen pixels (width of the picture).
 @export var planet_size := Vector2(64.0, 88.0)
-@export var star_size := Vector2(18.0, 34.0)
+@export var star_size := Vector2(22.0, 38.0)
 ## How see-through the decorations are (1 = solid), so they stay in the background.
 @export_range(0.0, 1.0) var decor_opacity := 0.75
 ## Screen areas that must stay empty (score, buttons, evolution track).
@@ -69,8 +73,11 @@ func _scatter(textures: Array[Texture2D], count: int, size_range: Vector2,
 		blocked: Array, placed: Array[Rect2], is_planet: bool) -> void:
 	if textures.is_empty():
 		return
+	# Shuffled so the same picture doesn't repeat until all have been used.
+	var order := textures.duplicate()
+	order.shuffle()
 	for i in count:
-		var tex: Texture2D = textures.pick_random()
+		var tex: Texture2D = order[i % order.size()]
 		var width := randf_range(size_range.x, size_range.y)
 		var size := tex.get_size() * (width / tex.get_size().x)
 		var spot := _find_spot(size, blocked, placed)
