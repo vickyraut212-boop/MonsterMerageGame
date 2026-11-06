@@ -12,10 +12,14 @@ signal game_over
 ## Kept fairly narrow and short so the pile climbs towards the danger line
 ## within a minute or two of play; a tall jar never gets dangerous.
 ## inner_left centres it: (720 - inner_width) / 2.
+## The floor stays at inner_top + inner_height = 1060 so the evolution track
+## below the jar does not move; to change the height, move inner_top.
+## The rim sits low (y 535, where vicky marked it) so the pile reaches the
+## danger line quickly. A Tier 7 boss (260 px wide) still fits.
 @export var inner_left := 130.0
-@export var inner_top := 340.0
+@export var inner_top := 535.0
 @export var inner_width := 460.0
-@export var inner_height := 720.0
+@export var inner_height := 525.0
 
 ## How thick the walls look and collide.
 @export var wall_thickness := 24.0
