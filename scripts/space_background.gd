@@ -8,7 +8,7 @@ extends Node2D
 ## over the jar or over the HUD areas listed in keep_clear.
 
 ## The background painting. It is scaled to cover the whole 720 x 1280 screen.
-@export var background_texture: Texture2D = preload("res://assets/ui/background.png")
+@export var background_texture: Texture2D = preload("res://assets/ui/background.jpg")
 
 @export_group("Planets and stars")
 ## Pictures to scatter. One is picked at random for each piece.
