@@ -55,8 +55,10 @@ extends Node2D
 	Rect2(0, 0, 720, 250),
 	Rect2(0, 1085, 720, 195),
 ]
-## Extra space kept free around the jar.
-@export var jar_margin := 10.0
+## Extra space kept free around the jar's monster space. Negative lets
+## planets and stars come that far into it: the jar now reaches both screen
+## edges, so planets hang in behind its side glass.
+@export var jar_margin := -60.0
 ## Where the jar's protected column starts; above this only the score cloud is
 ## in the middle of the screen.
 @export var column_top := 175.0
@@ -84,9 +86,8 @@ func _ready() -> void:
 	var jar_rect := Rect2()
 	var jar := get_parent().get_node_or_null("Jar") as Jar
 	if jar:
-		var t := jar.wall_thickness
 		var inner := jar.get_inner_rect()
-		jar_rect = Rect2(inner.position.x - t, 0.0, inner.size.x + t * 2.0, inner.end.y + t).grow(jar_margin)
+		jar_rect = Rect2(inner.position.x, 0.0, inner.size.x, inner.end.y).grow(jar_margin)
 
 	var planet_blocked: Array[Rect2] = planet_keep_clear.duplicate()
 	var star_blocked: Array[Rect2] = star_keep_clear.duplicate()
