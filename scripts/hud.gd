@@ -1,8 +1,8 @@
 class_name Hud
 extends CanvasLayer
 ## On-screen UI: the settings button and pop-up, the score cloud with the
-## evolution chart just under it, the Next monster preview, the power-up
-## buttons along the bottom, and the game-over panel.
+## evolution chart just under it, the power-up buttons along the bottom, and
+## the game-over panel. (The next monster is shown inside the ship's dome.)
 ##
 ## LAYOUT
 ## The evolution chart (TierTrack) sits under the score cloud at 80% size: its
