@@ -53,7 +53,7 @@ signal next_changed(tier: int)
 ## top (the top of the blue ring).
 @export var dome_base := 0.06
 ## How big the next monster looks inside the dome (share of the dome width).
-@export var dome_monster_size := 0.72
+@export var dome_monster_size := 0.5
 @export var dome_glass_color := Color(0.75, 0.9, 1.0, 0.16)
 @export var dome_edge_color := Color(0.45, 0.78, 1.0, 0.95)
 
@@ -288,9 +288,9 @@ func _draw_ship() -> void:
 
 
 ## vicky's saucer art with a glass dome drawn on top, and the next monster
-## standing inside the dome. Drawn back to front: back of the glass, monster,
-## saucer (its blue ring hides the monster's feet), then the glass outline and
-## shine over everything.
+## sitting inside the dome on the blue ring. Drawn back to front: back of the
+## glass, saucer, monster (so none of it is hidden behind the ship), then the
+## glass outline and shine over everything.
 func _draw_art_ship() -> void:
 	var tex_size := ship_texture.get_size()
 	var draw_size := tex_size * (ship_width / tex_size.x)
@@ -301,13 +301,15 @@ func _draw_art_ship() -> void:
 	var dome := _ellipse_points(base, rx, ry, PI, TAU, 32)
 
 	draw_colored_polygon(dome, dome_glass_color)
+	draw_texture_rect(ship_texture, Rect2(top_left, draw_size), false)
 	var next_texture: Texture2D = TierData.get_texture(next_tier) if enabled else null
 	if next_texture:
 		var side := rx * 2.0 * dome_monster_size
 		var fit := next_texture.get_size() * (side / maxf(next_texture.get_width(), next_texture.get_height()))
-		var center := base + Vector2(0, -ry * 0.42 + sin(_time * 2.2) * 2.0)  # little bob
-		draw_texture_rect(next_texture, Rect2(center - fit / 2.0, fit), false)
-	draw_texture_rect(ship_texture, Rect2(top_left, draw_size), false)
+		# Feet resting just on the ring, with a gentle bob.
+		var bottom := base.y + draw_size.y * 0.04 + sin(_time * 2.2) * 1.5
+		var rect := Rect2(Vector2(-fit.x / 2.0, bottom - fit.y), fit)
+		draw_texture_rect(next_texture, rect, false)
 
 	# Glass edge: a soft glow, then the crisp blue line.
 	draw_polyline(dome, Color(dome_edge_color, 0.25), 7.0, true)
