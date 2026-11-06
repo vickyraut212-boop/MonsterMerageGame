@@ -41,7 +41,6 @@ signal power_up_pressed(power_up: String)
 @onready var _power_ups: Control = $PowerUps
 @onready var _score_label: Label = $ScorePanel/ScoreLabel
 @onready var _best_label: Label = $ScorePanel/BestLabel
-@onready var _next_icon: TextureRect = $NextPanel/NextIcon
 @onready var _game_over: Control = $GameOver
 @onready var _final_score_label: Label = $GameOver/Box/FinalScore
 @onready var _final_best_label: Label = $GameOver/Box/FinalBest
@@ -164,10 +163,6 @@ func set_score(score: int) -> void:
 
 func set_best(best: int) -> void:
 	_best_label.text = "BEST %d" % best
-
-
-func set_next(tier: int) -> void:
-	_next_icon.texture = TierData.get_texture(tier)
 
 
 func show_game_over(score: int, best: int, is_new_best: bool) -> void:

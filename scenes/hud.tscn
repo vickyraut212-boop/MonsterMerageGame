@@ -9,7 +9,6 @@
 [ext_resource type="Texture2D" path="res://assets/ui/powerup_vanish.png" id="5_vanish"]
 [ext_resource type="Texture2D" path="res://assets/ui/powerup_blast.png" id="6_blast"]
 [ext_resource type="Texture2D" path="res://assets/ui/powerup_upgrade.png" id="7_upgrade"]
-[ext_resource type="Texture2D" path="res://assets/ui/next_backing.png" id="8_next_backing"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(1, 1, 1, 0.12)
@@ -74,42 +73,6 @@ theme_override_font_sizes/font_size = 54
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="NextPanel" type="Panel" parent="."]
-offset_left = 568.0
-offset_top = 16.0
-offset_right = 704.0
-offset_bottom = 136.0
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
-
-[node name="NextLabel" type="Label" parent="NextPanel"]
-offset_top = 6.0
-offset_right = 136.0
-offset_bottom = 34.0
-theme_override_font_sizes/font_size = 22
-text = "NEXT"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="NextBacking" type="TextureRect" parent="NextPanel"]
-offset_left = 24.0
-offset_top = 33.0
-offset_right = 112.0
-offset_bottom = 118.0
-mouse_filter = 2
-texture = ExtResource("8_next_backing")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="NextIcon" type="TextureRect" parent="NextPanel"]
-offset_left = 37.0
-offset_top = 44.0
-offset_right = 99.0
-offset_bottom = 106.0
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
 
 [node name="EvolutionChart" type="TextureRect" parent="."]
 offset_left = 572.0
