@@ -1,8 +1,13 @@
 class_name Hud
 extends CanvasLayer
-## On-screen UI: the settings button and pop-up, the score cloud, the Next
-## monster preview, the power-up buttons, the tier strip along the bottom, and
-## the game-over panel.
+## On-screen UI: the settings button and pop-up, the score cloud with the
+## evolution chart just under it, the Next monster preview, the power-up
+## buttons along the bottom, and the game-over panel.
+##
+## LAYOUT
+## The evolution chart (TierTrack) sits under the score cloud at 80% size: its
+## Scale in the Inspector is 0.8. The power-up buttons (PowerUps) sit in a row
+## under the jar, where the chart used to be. Move either node in the editor.
 ##
 ## The HUD keeps running while the game is paused (process_mode = Always), so
 ## the settings pop-up works while everything else is frozen.
@@ -184,12 +189,7 @@ const COIN_BORDER := Color(0.45, 0.25, 0.05)
 const COIN_TEXT := Color(0.3, 0.15, 0.05)
 
 
-## Puts the evolution track just under the jar (called by main.gd).
-func set_track_top(y: float) -> void:
-	_tier_track.position.y = y
-
-
-## The evolution track along the bottom: a rounded bar showing all 7 monsters
+## The evolution chart under the score cloud: a rounded bar showing all 7 monsters
 ## in merge order, smallest to biggest, standing on one baseline, with a gold
 ## coin under each tier that pays a bonus.
 func _build_tier_track() -> void:
