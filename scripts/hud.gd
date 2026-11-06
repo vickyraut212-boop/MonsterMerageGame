@@ -1,7 +1,7 @@
 class_name Hud
 extends CanvasLayer
-## On-screen UI: the settings button and pop-up, the score cloud, the
-## power-up buttons, the tier strip along the bottom, and
+## On-screen UI: the settings button and pop-up, the score cloud, the Next
+## monster preview, the power-up buttons, the tier strip along the bottom, and
 ## the game-over panel.
 ##
 ## The HUD keeps running while the game is paused (process_mode = Always), so
