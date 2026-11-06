@@ -62,7 +62,7 @@ var current_tier := 1
 var next_tier := 1
 
 var _jar: Jar
-var _held: Sprite2D
+var _held: BlinkSprite
 var _cooldown_left := 0.0
 var _target_x := 360.0
 var _time := 0.0
@@ -71,7 +71,7 @@ var _last_x := 0.0
 
 
 func _ready() -> void:
-	_held = Sprite2D.new()
+	_held = BlinkSprite.new()
 	add_child(_held)
 
 
@@ -142,8 +142,7 @@ func stop() -> void:
 
 
 func _refresh_held() -> void:
-	_held.texture = TierData.get_texture(current_tier)
-	_held.scale = TierData.get_sprite_scale(current_tier)
+	_held.set_tier(current_tier)
 
 
 func _clamped_target_x() -> float:

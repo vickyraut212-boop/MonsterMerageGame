@@ -1,18 +1,20 @@
 # Monster sprites
 
-Put the 7 monster PNGs here with these exact names:
+Each tier has an eyes-open sprite plus 3 blink frames:
 
-| File | Monster |
+| File | What it is |
 |---|---|
-| `tier_1.png` | Tier 1, tiny dot |
-| `tier_2.png` | Tier 2 |
-| `tier_3.png` | Tier 3 |
-| `tier_4.png` | Tier 4 |
-| `tier_5.png` | Tier 5 |
-| `tier_6.png` | Tier 6 |
-| `tier_7.png` | Tier 7, big boss |
+| `tier_N.png` | Tier N, eyes open (used everywhere, including the HUD) |
+| `tier_N_blink_1.png` | eyes half closed |
+| `tier_N_blink_2.png` | eyes closed |
+| `tier_N_blink_3.png` | eyes half open again |
+
+Tier 1 is the tiny dot, Tier 7 the big boss.
 
 Tips:
-- Transparent background, monster centred, roughly round, with little empty space around it.
-- Sprites here are cropped to the monster and resized to 768px max. The game scales each one to its tier size.
+- Transparent background, monster centred, cropped tight, resized to 768px max.
+- All 4 files of a tier must be exactly the same pixel size, or the blink will jump.
+- The game scales each tier so its width matches its collider, so swapping art never changes the in-game size.
+- If a tier's blink frames are missing, that monster just doesn't blink.
 - Sizes follow `docs/size_chart.png`; sizes and points per tier live in `scripts/tier_data.gd`.
+- Blink speed and timing live in `scripts/blink_sprite.gd`.
