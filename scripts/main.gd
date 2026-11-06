@@ -24,7 +24,6 @@ func _ready() -> void:
 	hud.set_best(best)
 	hud.set_track_top(jar.get_floor_y() + jar.wall_thickness + 16.0)
 
-	dropper.next_changed.connect(hud.set_next)
 	dropper.dropped.connect(_on_dropped)
 	jar.game_over.connect(_on_game_over)
 	hud.play_again_pressed.connect(_on_play_again)
