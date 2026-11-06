@@ -13,6 +13,7 @@ const SAVE_PATH := "user://best_score.cfg"
 var score := 0
 var best := 0
 var _is_over := false
+var _shaker: Shaker
 
 
 func _ready() -> void:
@@ -30,6 +31,10 @@ func _ready() -> void:
 	hud.restart_pressed.connect(_on_play_again)
 
 	dropper.setup(jar)
+
+	# Shake the phone (or press SHAKE on PC) to jostle the monsters.
+	_shaker = Shaker.new()
+	add_child(_shaker)
 
 	# Animated opening (logo + monsters jumping in) on first launch only.
 	Intro.play_over(self)
@@ -142,6 +147,7 @@ func _popup_label(text: String, font_size: int, color: Color, offset: Vector2) -
 func _on_game_over() -> void:
 	_is_over = true
 	dropper.stop()
+	_shaker.enabled = false
 	GameAudio.play("game_over")
 	GameAudio.vibrate(300)
 	var is_new_best := score > best
