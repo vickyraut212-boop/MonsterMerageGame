@@ -4,16 +4,15 @@ extends Node2D
 ## and stars scattered at random each game.
 ##
 ## LAYOUT (following vicky's reference)
-## - All the planets appear every game, each hugging a different screen edge
-##   or corner, big and partly cropped off-screen, in varied sizes.
+## - All the planets appear every game, each hugging a different screen edge,
+##   big and partly cropped off-screen, in varied sizes. One always sits in
+##   the top-right corner, just under the right power-up.
 ## - A few small stars sit in the open space that is left.
 ##
 ## PURELY DECORATIVE: nothing here has a collision shape, everything is drawn
 ## behind every other node (z_index -100), and nothing is ever placed over the
 ## jar, the space above it where the ship flies, the score cloud, the Next
-## preview or the evolution track. Planets may sit behind the settings and
-## power-up buttons in the top corners (those buttons are solid, so they stay
-## readable); stars stay clear of the whole top bar.
+## preview, the settings and power-up buttons or the evolution track.
 
 ## The background painting. It is scaled to cover the whole 720 x 1280 screen.
 @export var background_texture: Texture2D = preload("res://assets/ui/background.jpg")
@@ -41,11 +40,14 @@ extends Node2D
 @export_range(0.0, 1.0) var star_opacity := 0.9
 
 @export_group("Keep clear")
-## Areas planets must not cover (score cloud, Next preview, evolution track).
+## Areas planets must not cover (score cloud, Next preview, top buttons,
+## evolution track).
 ## The jar and the column above it are added automatically.
 @export var planet_keep_clear: Array[Rect2] = [
 	Rect2(200, 0, 320, 175),     # score cloud
 	Rect2(560, 0, 160, 145),     # Next preview (see-through panel)
+	Rect2(0, 0, 215, 245),       # settings button and left power-ups
+	Rect2(600, 140, 120, 105),   # right power-up
 	Rect2(100, 1085, 520, 165),  # evolution track
 ]
 ## Areas stars must not cover (the whole top bar and the evolution track).
@@ -56,7 +58,7 @@ extends Node2D
 ## Extra space kept free around the jar.
 @export var jar_margin := 10.0
 ## Where the jar's protected column starts; above this only the score cloud is
-## in the middle of the screen, so planets may reach in from the top corners.
+## in the middle of the screen.
 @export var column_top := 175.0
 
 const SCREEN := Vector2(720, 1280)
@@ -67,8 +69,8 @@ const MIN_PLANET_RADIUS := 60.0
 ## Edge spots a planet can hug: a point on (or just past) the screen edge,
 ## and how far along that edge it may slide (as a fraction of the screen).
 const EDGE_SPOTS := [
-	{"name": "top_left", "at": Vector2(0.0, 0.0), "slide": Vector2(0.08, 0.06)},
-	{"name": "top_right", "at": Vector2(1.0, 0.0), "slide": Vector2(0.0, 0.06)},
+	# Always used first: vicky wants one planet in the top-right corner.
+	{"name": "right_corner", "at": Vector2(1.0, 0.27), "slide": Vector2(0.0, 0.03)},
 	{"name": "left_high", "at": Vector2(0.0, 0.38), "slide": Vector2(0.0, 0.1)},
 	{"name": "left_low", "at": Vector2(0.0, 0.72), "slide": Vector2(0.0, 0.1)},
 	{"name": "right_high", "at": Vector2(1.0, 0.4), "slide": Vector2(0.0, 0.1)},
@@ -113,8 +115,9 @@ func _draw() -> void:
 ## (Vector3: x, y, radius) they cover, so stars can avoid them.
 func _place_planets(blocked: Array[Rect2]) -> Array[Vector3]:
 	var circles: Array[Vector3] = []
-	var spots := EDGE_SPOTS.duplicate()
+	var spots := EDGE_SPOTS.slice(1)
 	spots.shuffle()
+	spots.push_front(EDGE_SPOTS[0])
 	var textures := planet_textures.duplicate()
 	textures.shuffle()
 	for tex: Texture2D in textures:
