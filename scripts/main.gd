@@ -32,6 +32,9 @@ func _ready() -> void:
 
 	dropper.setup(jar)
 
+	# Animated opening (logo + monsters jumping in) on first launch only.
+	Intro.play_over(self)
+
 
 func _on_dropped(tier: int, at: Vector2) -> void:
 	_spawn_monster(tier, at)
