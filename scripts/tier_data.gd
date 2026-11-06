@@ -91,3 +91,19 @@ func get_texture(tier: int) -> Texture2D:
 		return load(path)
 	return null
 
+
+## Blink frames shown after the eyes-open sprite: half-closed, closed,
+## half-open. They sit next to the sprite as tier_N_blink_1.png .. _3.png and
+## must be the same pixel size as tier_N.png. Missing frames = no blink.
+const BLINK_FRAME_COUNT := 3
+
+func get_blink_frames(tier: int) -> Array[Texture2D]:
+	var frames: Array[Texture2D] = []
+	var base: String = (get_tier(tier)["texture"] as String).get_basename()
+	for i in range(1, BLINK_FRAME_COUNT + 1):
+		var path := "%s_blink_%d.png" % [base, i]
+		if not ResourceLoader.exists(path):
+			return []
+		frames.append(load(path))
+	return frames
+

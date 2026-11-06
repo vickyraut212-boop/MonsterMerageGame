@@ -14,7 +14,7 @@ var tier := 1
 ## Set once this monster is being merged away, so it can't merge twice.
 var is_merging := false
 
-var _sprite: Sprite2D
+var _sprite: BlinkSprite
 
 
 func setup(new_tier: int) -> void:
@@ -43,9 +43,8 @@ func _ready() -> void:
 	collider.shape = shape
 	add_child(collider)
 
-	_sprite = Sprite2D.new()
-	_sprite.texture = TierData.get_texture(tier)
-	_sprite.scale = TierData.get_sprite_scale(tier)
+	_sprite = BlinkSprite.new()
+	_sprite.set_tier(tier)
 	add_child(_sprite)
 
 	body_entered.connect(_on_body_entered)

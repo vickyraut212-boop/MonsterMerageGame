@@ -6,9 +6,10 @@ extends Node2D
 ## finger is released.
 ##
 ## SPACESHIP ART
-## Until a sprite is set, the ship is drawn in code (see _draw_ship). To use
-## your own art, select the Dropper node and drag a PNG into "Ship Texture"
-## in the Inspector; "Ship Width" sets how wide it appears.
+## The ship uses vicky's 3D art (assets/ui/alien_ship.png). To swap it, select
+## the Dropper node and drag another PNG into "Ship Texture" in the Inspector;
+## "Ship Width" sets how wide it appears. Clearing "Ship Texture" falls back to
+## the UFO drawn in code (see _draw_ship).
 ##
 ## DROP ORDER
 ## The very first drop of the game is always Tier 1. After that, every drop is
@@ -30,9 +31,9 @@ signal next_changed(tier: int)
 
 @export_group("Spaceship")
 ## Your spaceship PNG. Leave empty to use the drawn UFO.
-@export var ship_texture: Texture2D
+@export var ship_texture: Texture2D = preload("res://assets/ui/alien_ship.png")
 ## How wide the ship appears, in pixels.
-@export var ship_width := 190.0
+@export var ship_width := 185.0
 ## How far above the held monster the ship floats.
 @export var ship_height_above := 92.0
 ## How much the ship leans into its movement (0 = no lean).
@@ -62,7 +63,7 @@ var current_tier := 1
 var next_tier := 1
 
 var _jar: Jar
-var _held: Sprite2D
+var _held: BlinkSprite
 var _cooldown_left := 0.0
 var _target_x := 360.0
 var _time := 0.0
@@ -71,7 +72,7 @@ var _last_x := 0.0
 
 
 func _ready() -> void:
-	_held = Sprite2D.new()
+	_held = BlinkSprite.new()
 	add_child(_held)
 
 
@@ -126,6 +127,7 @@ func _drop() -> void:
 		return
 	position.x = _clamped_target_x()
 	dropped.emit(current_tier, global_position)
+	GameAudio.play("drop", randf_range(0.95, 1.05))
 
 	current_tier = next_tier
 	next_tier = _pick_tier()
@@ -142,8 +144,7 @@ func stop() -> void:
 
 
 func _refresh_held() -> void:
-	_held.texture = TierData.get_texture(current_tier)
-	_held.scale = TierData.get_sprite_scale(current_tier)
+	_held.set_tier(current_tier)
 
 
 func _clamped_target_x() -> float:
