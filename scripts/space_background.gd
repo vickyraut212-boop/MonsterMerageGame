@@ -4,15 +4,18 @@ extends Node2D
 ## and stars scattered at random each game.
 ##
 ## LAYOUT (following vicky's reference)
-## - All the planets appear every game, each hugging a different screen edge,
-##   big and partly cropped off-screen, in varied sizes. One always sits in
-##   the top-right corner, just under the right power-up.
+## The jar now fills the width of the screen, so the open space is in the
+## corners: beside the score cloud above the ship, and beside the power-up
+## badge under the jar.
+## - All the planets appear every game, each hugging a screen edge in one of
+##   those corners, partly cropped off-screen, in varied sizes. One always
+##   sits top right, just under the evolution chart.
 ## - A few small stars sit in the open space that is left.
 ##
 ## PURELY DECORATIVE: nothing here has a collision shape, everything is drawn
 ## behind every other node (z_index -100), and nothing is ever placed over the
-## jar, the space above it where the ship flies, the score cloud, the Next
-## preview, the settings and power-up buttons or the evolution track.
+## jar, the band above it where the ship flies, the score cloud, the
+## evolution chart, the settings button or the power-up badge.
 
 ## The background painting. It is scaled to cover the whole 720 x 1280 screen.
 @export var background_texture: Texture2D = preload("res://assets/ui/background.jpg")
@@ -40,28 +43,20 @@ extends Node2D
 @export_range(0.0, 1.0) var star_opacity := 0.9
 
 @export_group("Keep clear")
-## Areas planets must not cover (score cloud, Next preview, top buttons,
-## evolution track).
-## The jar and the column above it are added automatically.
-@export var planet_keep_clear: Array[Rect2] = [
-	Rect2(200, 0, 320, 175),     # score cloud
-	Rect2(560, 0, 160, 145),     # Next preview (see-through panel)
-	Rect2(0, 0, 215, 245),       # settings button and left power-ups
-	Rect2(600, 140, 120, 105),   # right power-up
-	Rect2(100, 1085, 520, 165),  # evolution track
+## Areas planets and stars must not cover: the settings button, the score
+## cloud, the evolution chart panel and the power-up badge. The jar and the
+## band the ship flies in are added automatically.
+@export var keep_clear: Array[Rect2] = [
+	Rect2(0, 0, 125, 125),       # settings button
+	Rect2(195, 0, 330, 175),     # score cloud
+	Rect2(560, 0, 160, 155),     # evolution chart panel
+	Rect2(135, 1095, 450, 145),  # power-up badge
 ]
-## Areas stars must not cover (the whole top bar and the evolution track).
-@export var star_keep_clear: Array[Rect2] = [
-	Rect2(0, 0, 720, 250),
-	Rect2(0, 1085, 720, 195),
-]
-## Extra space kept free around the jar's monster space. Negative lets
-## planets and stars come that far into it: the jar now reaches both screen
-## edges, so planets hang in behind its side glass.
-@export var jar_margin := -60.0
-## Where the jar's protected column starts; above this only the score cloud is
-## in the middle of the screen.
-@export var column_top := 175.0
+## Height of the band above the jar's rim where the ship and its dome fly
+## (kept clear across the whole width).
+@export var ship_band := 150.0
+## Extra space kept free around the jar's glass.
+@export var jar_margin := 8.0
 
 const SCREEN := Vector2(720, 1280)
 ## Planets never get smaller than this (radius), so none shows as a sliver;
@@ -71,35 +66,29 @@ const MIN_PLANET_RADIUS := 60.0
 ## Edge spots a planet can hug: a point on (or just past) the screen edge,
 ## and how far along that edge it may slide (as a fraction of the screen).
 const EDGE_SPOTS := [
-	# Always used first: vicky wants one planet in the top-right corner.
-	{"name": "right_corner", "at": Vector2(1.0, 0.27), "slide": Vector2(0.0, 0.03)},
-	{"name": "left_high", "at": Vector2(0.0, 0.38), "slide": Vector2(0.0, 0.1)},
-	{"name": "left_low", "at": Vector2(0.0, 0.72), "slide": Vector2(0.0, 0.1)},
-	{"name": "right_high", "at": Vector2(1.0, 0.4), "slide": Vector2(0.0, 0.1)},
-	{"name": "right_low", "at": Vector2(1.0, 0.7), "slide": Vector2(0.0, 0.1)},
+	# Always used first: vicky wants one planet in the top-right corner
+	# (now just under the evolution chart).
+	{"name": "right_corner", "at": Vector2(1.0, 0.178), "slide": Vector2(0.0, 0.005)},
+	{"name": "left_top", "at": Vector2(0.0, 0.17), "slide": Vector2(0.0, 0.01)},
+	{"name": "left_bottom", "at": Vector2(0.0, 0.93), "slide": Vector2(0.0, 0.02)},
+	{"name": "right_bottom", "at": Vector2(1.0, 0.93), "slide": Vector2(0.0, 0.02)},
 ]
 
 
 func _ready() -> void:
 	z_index = -100
 	z_as_relative = false
-	var jar_rect := Rect2()
+	var blocked: Array[Rect2] = keep_clear.duplicate()
 	var jar := get_parent().get_node_or_null("Jar") as Jar
 	if jar:
-		var inner := jar.get_inner_rect()
-		jar_rect = Rect2(inner.position.x, 0.0, inner.size.x, inner.end.y).grow(jar_margin)
+		# The whole glass box, fins included, plus the ship's band above it.
+		var glass := Rect2(jar.inner_left - jar.depth_x / 2.0, jar.inner_top - jar.fin_height,
+				jar.inner_width + jar.depth_x, jar.inner_height + jar.fin_height + jar.depth_y / 2.0).grow(jar_margin)
+		blocked.append(glass)
+		blocked.append(Rect2(0, glass.position.y - ship_band, SCREEN.x, ship_band))
 
-	var planet_blocked: Array[Rect2] = planet_keep_clear.duplicate()
-	var star_blocked: Array[Rect2] = star_keep_clear.duplicate()
-	if jar_rect != Rect2():
-		star_blocked.append(jar_rect)
-		var column := jar_rect
-		column.position.y = column_top
-		column.size.y = jar_rect.end.y - column_top
-		planet_blocked.append(column)
-
-	var planets := _place_planets(planet_blocked)
-	_place_stars(star_blocked, planets)
+	var planets := _place_planets(blocked)
+	_place_stars(blocked, planets)
 
 
 func _draw() -> void:
