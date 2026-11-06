@@ -11,6 +11,7 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 [autoload]
 
 TierData="*res://scripts/tier_data.gd"
+GameAudio="*res://scripts/game_audio.gd"
 
 [display]
 

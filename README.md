@@ -21,6 +21,7 @@ Move the mouse (or drag a finger) to aim the monster at the top, release to drop
   - `monster.gd` - one monster's physics body
   - `main.gd` - merging, score and game over
   - `hud.gd` - on-screen UI
+  - `game_audio.gd` - sound effects, music and vibration, plus the Sound / Music / Vibrate switches (placeholder sounds made in code; drop your own `pop.ogg`, `music.ogg` etc. into `assets/audio/` to replace them)
 
 ## Roadmap
 1. Project setup (done)

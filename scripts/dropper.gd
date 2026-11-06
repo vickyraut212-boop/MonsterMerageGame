@@ -126,6 +126,7 @@ func _drop() -> void:
 		return
 	position.x = _clamped_target_x()
 	dropped.emit(current_tier, global_position)
+	GameAudio.play("drop", randf_range(0.95, 1.05))
 
 	current_tier = next_tier
 	next_tier = _pick_tier()

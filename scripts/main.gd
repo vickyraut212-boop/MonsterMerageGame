@@ -71,12 +71,20 @@ func _merge(a: Monster, b: Monster) -> void:
 		# Two Tier 7 bosses: both vanish for a big bonus.
 		_add_score(TierData.BOSS_MERGE_BONUS)
 		_show_points_popup(midpoint, 0, TierData.BOSS_MERGE_BONUS)
+		GameAudio.play("boss")
+		GameAudio.vibrate(120)
 		return
 
 	var points := TierData.get_points(new_tier)
 	var bonus := TierData.get_bonus(new_tier)
 	_add_score(points + bonus)
 	_show_points_popup(midpoint, points, bonus)
+	# Pop sound: small monsters pop high, big ones pop deeper.
+	var size := float(new_tier - 2) / (TierData.tier_count() - 2)
+	GameAudio.play("pop", lerpf(1.35, 0.7, size))
+	if bonus > 0:
+		GameAudio.play("bonus")
+	GameAudio.vibrate(20 + new_tier * 5)
 	var merged := _spawn_monster(new_tier, midpoint)
 	merged.linear_velocity = velocity * 0.5
 	merged.pop_in()
@@ -132,6 +140,8 @@ func _popup_label(text: String, font_size: int, color: Color, offset: Vector2) -
 func _on_game_over() -> void:
 	_is_over = true
 	dropper.stop()
+	GameAudio.play("game_over")
+	GameAudio.vibrate(300)
 	var is_new_best := score > best
 	if is_new_best:
 		best = score
