@@ -33,7 +33,7 @@ signal next_changed(tier: int)
 ## Your spaceship PNG. Leave empty to use the drawn UFO.
 @export var ship_texture: Texture2D = preload("res://assets/ui/alien_ship.png")
 ## How wide the ship appears, in pixels.
-@export var ship_width := 220.0
+@export var ship_width := 185.0
 ## How far above the held monster the ship floats.
 @export var ship_height_above := 92.0
 ## How much the ship leans into its movement (0 = no lean).
