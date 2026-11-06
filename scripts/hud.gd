@@ -1,10 +1,35 @@
 class_name Hud
 extends CanvasLayer
-## On-screen UI: score, best score, the Next monster preview, the tier strip
-## along the bottom, and the game-over panel.
+## On-screen UI: the settings button and pop-up, the score cloud, the Next
+## monster preview, the power-up buttons, the tier strip along the bottom, and
+## the game-over panel.
+##
+## The HUD keeps running while the game is paused (process_mode = Always), so
+## the settings pop-up works while everything else is frozen.
+##
+## SETTINGS POP-UP
+## The pop-up is one picture (assets/ui/settings_popup.png). Its buttons are
+## invisible click areas placed over the picture, sized as fractions of it
+## (anchors), so they stay lined up if the picture is resized. To adjust one,
+## select it under SettingsPopup/Panel and drag its anchors in the editor.
 
 signal play_again_pressed
+## Restart button in the settings pop-up.
+signal restart_pressed
+## Home button in the settings pop-up. Nothing listens yet: there is no home
+## screen so far.
+signal home_pressed
+## Sound / Music / Vibrate / Effects in the settings pop-up ("sound", "music",
+## "vibrate", "effects"). Nothing listens yet: the game has no audio so far.
+signal setting_pressed(setting: String)
+## A power-up button ("vanish", "blast", "upgrade"). Nothing listens yet: what
+## each power-up does is still to be decided.
+signal power_up_pressed(power_up: String)
 
+@onready var _settings_button: TextureButton = $SettingsButton
+@onready var _settings_popup: Control = $SettingsPopup
+@onready var _settings_panel: Control = $SettingsPopup/Panel
+@onready var _power_ups: Control = $PowerUps
 @onready var _score_label: Label = $ScorePanel/ScoreLabel
 @onready var _best_label: Label = $ScorePanel/BestLabel
 @onready var _next_icon: TextureRect = $NextPanel/NextIcon
@@ -19,6 +44,51 @@ func _ready() -> void:
 	_game_over.visible = false
 	_build_tier_track()
 	_play_again_button.pressed.connect(func() -> void: play_again_pressed.emit())
+	_settings_popup.visible = false
+	_settings_button.pressed.connect(func() -> void:
+		_bounce(_settings_button)
+		open_settings())
+	_connect_settings_popup()
+	for button: TextureButton in _power_ups.get_children():
+		var power_up := button.name.to_lower()
+		button.pressed.connect(func() -> void:
+			_bounce(button)
+			power_up_pressed.emit(power_up))
+
+
+## Shows the settings pop-up and pauses the game underneath it.
+func open_settings() -> void:
+	get_tree().paused = true
+	_settings_popup.visible = true
+	_settings_panel.scale = Vector2(0.85, 0.85)
+	_settings_panel.create_tween().tween_property(_settings_panel, "scale", Vector2.ONE, 0.18) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+## Hides the settings pop-up and un-pauses the game.
+func close_settings() -> void:
+	_settings_popup.visible = false
+	get_tree().paused = false
+
+
+func _connect_settings_popup() -> void:
+	var panel := _settings_panel
+	(panel.get_node("Close") as TextureButton).pressed.connect(close_settings)
+	(panel.get_node("Restart") as TextureButton).pressed.connect(func() -> void:
+		close_settings()
+		restart_pressed.emit())
+	(panel.get_node("Home") as TextureButton).pressed.connect(func() -> void: home_pressed.emit())
+	for setting in ["Sound", "Music", "Vibrate", "Effects"]:
+		var key: String = setting.to_lower()
+		(panel.get_node(setting) as TextureButton).pressed.connect(func() -> void: setting_pressed.emit(key))
+
+
+## Quick squash-and-stretch so a tap feels like it landed.
+func _bounce(control: Control) -> void:
+	control.pivot_offset = control.size / 2.0
+	control.scale = Vector2(0.88, 0.88)
+	control.create_tween().tween_property(control, "scale", Vector2.ONE, 0.18) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func set_score(score: int) -> void:

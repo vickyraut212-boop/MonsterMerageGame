@@ -13,7 +13,7 @@ Move the mouse (or drag a finger) to aim the monster at the top, release to drop
 ## Folders
 - `assets/monsters/` - the 7 monster PNGs (`tier_1.png` to `tier_7.png`)
 - `docs/size_chart.png` - the art size chart the tier sizes follow
-- `scenes/` - `main.tscn` (the game screen), `jar.tscn`, `hud.tscn` (score, Next preview, game over)
+- `scenes/` - `main.tscn` (the game screen), `jar.tscn`, `hud.tscn` (settings button and pop-up, score cloud, Next preview, power-up buttons, game over)
 - `scripts/`
   - `tier_data.gd` - sizes and points for each tier (edit this to tune)
   - `jar.gd` - jar walls, floor and the danger line

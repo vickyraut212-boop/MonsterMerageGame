@@ -28,6 +28,7 @@ func _ready() -> void:
 	dropper.dropped.connect(_on_dropped)
 	jar.game_over.connect(_on_game_over)
 	hud.play_again_pressed.connect(_on_play_again)
+	hud.restart_pressed.connect(_on_play_again)
 
 	dropper.setup(jar)
 
