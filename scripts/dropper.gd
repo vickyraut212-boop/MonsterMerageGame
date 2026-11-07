@@ -85,11 +85,18 @@ var _target_x := 360.0
 var _time := 0.0
 var _lean := 0.0
 var _last_x := 0.0
+var _dome_front: Node2D
 
 
 func _ready() -> void:
 	_held = BlinkSprite.new()
 	add_child(_held)
+	# The next monster and the glass edge go on their own layer above the
+	# ship. Godot 4.3's Compatibility renderer draws the monster as a plain
+	# white square if it shares a canvas item with the dome's glass fill.
+	_dome_front = Node2D.new()
+	_dome_front.draw.connect(_draw_dome_front)
+	add_child(_dome_front)
 
 
 ## Called once by main.gd when the game starts.
@@ -182,6 +189,7 @@ func _draw() -> void:
 	draw_set_transform(Vector2(0, ship_y), _lean, Vector2.ONE)
 	_draw_ship()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_dome_front.queue_redraw()
 
 
 ## Tractor beam shining down from the ship around the held monster.
@@ -302,6 +310,24 @@ func _draw_art_ship() -> void:
 
 	draw_colored_polygon(dome, dome_glass_color)
 	draw_texture_rect(ship_texture, Rect2(top_left, draw_size), false)
+
+
+## Drawn on _dome_front, over the ship: the next monster sitting on the blue
+## ring, then the glass outline and shine over it.
+func _draw_dome_front() -> void:
+	if _jar == null or ship_texture == null:
+		return
+	var layer := _dome_front
+	var ship_y := -ship_height_above + sin(_time * 3.0) * 3.0  # same hover as _draw()
+	layer.draw_set_transform(Vector2(0, ship_y), _lean, Vector2.ONE)
+	var tex_size := ship_texture.get_size()
+	var draw_size := tex_size * (ship_width / tex_size.x)
+	var top_left := -draw_size / 2.0
+	var base := Vector2(0, top_left.y + draw_size.y * dome_base)
+	var rx := ship_width * dome_half_width
+	var ry := ship_width * dome_height
+	var dome := _ellipse_points(base, rx, ry, PI, TAU, 32)
+
 	var next_texture: Texture2D = TierData.get_texture(next_tier) if enabled else null
 	if next_texture:
 		var side := rx * 2.0 * dome_monster_size
@@ -309,15 +335,15 @@ func _draw_art_ship() -> void:
 		# Feet resting just on the ring, with a gentle bob.
 		var bottom := base.y + draw_size.y * 0.04 + sin(_time * 2.2) * 1.5
 		var rect := Rect2(Vector2(-fit.x / 2.0, bottom - fit.y), fit)
-		draw_texture_rect(next_texture, rect, false)
+		layer.draw_texture_rect(next_texture, rect, false)
 
 	# Glass edge: a soft glow, then the crisp blue line.
-	draw_polyline(dome, Color(dome_edge_color, 0.25), 7.0, true)
-	draw_polyline(dome, dome_edge_color, 3.0, true)
+	layer.draw_polyline(dome, Color(dome_edge_color, 0.25), 7.0, true)
+	layer.draw_polyline(dome, dome_edge_color, 3.0, true)
 	# Shine, like the highlights on vicky's dome art.
-	draw_arc(base + Vector2(-rx * 0.08, -ry * 0.02), rx * 0.78, deg_to_rad(200), deg_to_rad(245), 12,
+	layer.draw_arc(base + Vector2(-rx * 0.08, -ry * 0.02), rx * 0.78, deg_to_rad(200), deg_to_rad(245), 12,
 			Color(1, 1, 1, 0.75), 4.0, true)
-	draw_arc(base + Vector2(rx * 0.06, -ry * 0.02), rx * 0.8, deg_to_rad(298), deg_to_rad(318), 8,
+	layer.draw_arc(base + Vector2(rx * 0.06, -ry * 0.02), rx * 0.8, deg_to_rad(298), deg_to_rad(318), 8,
 			Color(1, 1, 1, 0.6), 3.0, true)
 
 
